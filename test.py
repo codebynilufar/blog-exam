@@ -3,12 +3,27 @@ import crud
 
 db = SessionLocal()
 
-# Test: user qo‘shish
 user = crud.create_user(db, "test_user", "test@example.com")
-print("Created User:", user.username)
+print("User qo‘shildi:", user.username, user.email)
 
-# Test: user postlari
-posts = crud.get_user_posts(db, user.id)
-print("User posts:", posts)
+post = crud.create_post(db, user.id, "My First Post", "Hello, world!")
+print("Post qo‘shildi:", post.title)
 
-# Qolgan function larni ham shu yerda test qiling
+comment = crud.create_comment(db, user.id, post.id, "Nice post!")
+print("Comment qo‘shildi:", comment.text)
+
+print("User postlari:", [p.title for p in crud.get_user_posts(db, user.id)])
+print("Commentlar soni:", crud.get_post_comment_count(db, post.id))
+
+updated_post = crud.update_post(db, post.id, "Updated Post", "New content")
+print("Post yangilandi:", updated_post.title, updated_post.body)
+
+print("Latest posts:", [p.title for p in crud.get_latest_posts(db)])
+print("Search results:", [p.title for p in crud.search_posts_by_title(db, 'Updated')])
+print("Pagination:", [p.title for p in crud.paginate_posts(db, page=1, per_page=2)])
+
+crud.delete_post(db, post.id)
+print("Post o‘chirildi!")
+print("User postlari (o‘chirgandan keyin):", [p.title for p in crud.get_user_posts(db, user.id)])
+
+db.close()

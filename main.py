@@ -1,5 +1,5 @@
 import json
-from database import Base, engine, SessionLocal
+from database import engine, LocalSession, Base
 from models import User, Post, Comment
 
 def init_db():
@@ -7,17 +7,25 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
 def load_demo_data():
-    db = SessionLocal()
+    db = LocalSession()
     with open("demo_data.json", "r") as f:
         data = json.load(f)
 
     # Users larni kriting
-    db.commit()
+
+    for u in data["users"]:
+        user = User(username=u["username"], email=u["email"])
+        db.add(user)
 
     # Posts larni kriting
-    db.commit()
+    for p in data["posts"]:
+        post = Post(title=p["title"], body=p["body"], user_id=p["user_id"])
+        db.add(post)
 
     # Comments larni kriting
+    for c in data["comments"]:
+        comment = Comment(text=c["text"], user_id=c["user_id"], post_id=c["post_id"])
+        db.add(comment)
     db.commit()
 
     db.close()
